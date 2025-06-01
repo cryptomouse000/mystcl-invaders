@@ -114,6 +114,78 @@
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.8);
         }
 
+        .leaderboard {
+            display: none;
+        }
+
+        .name-input {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            color: #00ffff;
+            text-align: center;
+            z-index: 30;
+            display: none;
+        }
+
+        .name-input input {
+            background: rgba(0, 50, 50, 0.8);
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            padding: 8px;
+            margin: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .name-input button {
+            background: #ff00ff;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+
+        .title {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ff00ff;
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+            letter-spacing: 3px;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
         /* Mobile Controls */
         .mobile-controls {
             position: absolute;
@@ -183,82 +255,42 @@
             transform: scale(0.95);
         }
 
-        @media (max-width: 768px) {
+        .restart-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 0, 0.3);
+            border: 3px solid #ffff00;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #ffff00;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
+            pointer-events: all;
+            user-select: none;
+            touch-action: manipulation;
+            z-index: 60;
+        }
+
+        .restart-button:active {
+            background: rgba(255, 255, 0, 0.6);
+            transform: scale(0.95);
+        }
+
+        /* Only show mobile controls on actual mobile devices */
+        @media (max-width: 768px) and (pointer: coarse) {
             .mobile-controls {
                 display: block;
             }
-        }
-
-        .title {
-            position: absolute;
-            top: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #ff00ff;
-            font-size: 32px;
-            font-weight: bold;
-            text-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
-            letter-spacing: 3px;
-        }
-
-        .leaderboard {
-            display: none;
-        }
-
-        .name-input {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            padding: 20px;
-            border: 2px solid #00ffff;
-            border-radius: 10px;
-            color: #00ffff;
-            text-align: center;
-            z-index: 30;
-            display: none;
-        }
-
-        .name-input input {
-            background: rgba(0, 50, 50, 0.8);
-            border: 1px solid #00ffff;
-            color: #00ffff;
-            padding: 8px;
-            margin: 10px;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .name-input button {
-            background: #ff00ff;
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            margin: 5px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-        }
-
-        .stars {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 2s infinite alternate;
-        }
-
-        @keyframes twinkle {
-            0% { opacity: 0.3; }
-            100% { opacity: 1; }
+            
+            .restart-button {
+                display: flex;
+            }
         }
     </style>
 </head>
@@ -283,7 +315,7 @@
                 <h3>🏆 LEADERBOARD 🏆</h3>
                 <div id="gameOverLeaderboard"></div>
             </div>
-            <div style="font-size: 16px; margin-top: 20px; color: #00ffff;">Press R to Restart</div>
+            <div style="font-size: 16px; margin-top: 20px; color: #00ffff;">Tap restart button or press R to play again</div>
         </div>
         <div class="name-input" id="nameInput">
             <div>Enter Your Name</div>
@@ -294,7 +326,7 @@
         </div>
         <div class="controls">
             <span id="desktopControls">Arrow Keys: Move | Space: Shoot | R: Restart</span>
-            <span id="mobileControls" style="display: none;">Use joystick to move | Tap fire button to shoot</span>
+            <span id="mobileControls" style="display: none;">Use joystick to move | Tap fire to shoot | Tap restart to restart</span>
         </div>
         
         <!-- Mobile Controls -->
@@ -306,6 +338,9 @@
             </div>
             <div class="fire-button" id="fireButton">🔥</div>
         </div>
+        
+        <!-- Mobile Restart Button -->
+        <div class="restart-button" id="restartButton">🔄</div>
     </div>
 
     <script>
@@ -332,16 +367,12 @@
             const container = document.querySelector('.game-container');
             const containerRect = container.getBoundingClientRect();
             
-            // Set canvas size based on container
             canvas.width = containerRect.width;
             canvas.height = containerRect.height;
             
             // Update game boundaries
             gameState.canvasWidth = canvas.width;
             gameState.canvasHeight = canvas.height;
-            
-            // Scale factor for mobile vs desktop
-            gameState.scaleFactor = Math.min(canvas.width / 800, canvas.height / 600);
             
             // Adjust player position if out of bounds
             if (player.x > canvas.width - player.width) {
@@ -354,113 +385,6 @@
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
                    ('ontouchstart' in window) || 
                    (navigator.maxTouchPoints > 0);
-        }
-
-        // Mobile joystick and button controls
-        let mobileControls = {
-            moveLeft: false,
-            moveRight: false,
-            shoot: false,
-            joystickActive: false,
-            joystickStartX: 0,
-            joystickCenterX: 0
-        };
-
-        function setupMobileControls() {
-            if (isMobile()) {
-                document.getElementById('mobileControls').style.display = 'block';
-                document.getElementById('desktopControls').style.display = 'none';
-                document.getElementById('mobileControlsUI').style.display = 'block';
-                
-                setupJoystick();
-                setupFireButton();
-            } else {
-                // Ensure mobile controls are hidden on desktop
-                document.getElementById('mobileControlsUI').style.display = 'none';
-            }
-        }
-
-        function setupJoystick() {
-            const joystick = document.getElementById('joystick');
-            const stick = document.getElementById('joystickStick');
-            const base = joystick.querySelector('.joystick-base');
-            
-            // Get joystick center position
-            function getJoystickCenter() {
-                const rect = base.getBoundingClientRect();
-                return {
-                    x: rect.left + rect.width / 2,
-                    y: rect.top + rect.height / 2
-                };
-            }
-            
-            // Touch start
-            joystick.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                mobileControls.joystickActive = true;
-                const center = getJoystickCenter();
-                mobileControls.joystickCenterX = center.x;
-                handleJoystickMove(e);
-            }, { passive: false });
-            
-            // Touch move
-            joystick.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                if (mobileControls.joystickActive) {
-                    handleJoystickMove(e);
-                }
-            }, { passive: false });
-            
-            // Touch end
-            joystick.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                mobileControls.joystickActive = false;
-                mobileControls.moveLeft = false;
-                mobileControls.moveRight = false;
-                // Reset stick position
-                stick.style.transform = 'translate(-50%, -50%)';
-            }, { passive: false });
-        }
-
-        function handleJoystickMove(e) {
-            const touch = e.touches[0];
-            const stick = document.getElementById('joystickStick');
-            const base = document.querySelector('.joystick-base');
-            const baseRect = base.getBoundingClientRect();
-            
-            // Calculate relative position
-            const relativeX = touch.clientX - (baseRect.left + baseRect.width / 2);
-            const relativeY = touch.clientY - (baseRect.top + baseRect.height / 2);
-            
-            // Limit stick movement to base circle
-            const maxDistance = 25; // Half of base minus stick radius
-            const distance = Math.sqrt(relativeX * relativeX + relativeY * relativeY);
-            
-            let finalX = relativeX;
-            if (distance > maxDistance) {
-                finalX = (relativeX / distance) * maxDistance;
-            }
-            
-            // Move the stick
-            stick.style.transform = `translate(calc(-50% + ${finalX}px), -50%)`;
-            
-            // Set movement flags based on stick position
-            mobileControls.moveLeft = finalX < -10;
-            mobileControls.moveRight = finalX > 10;
-        }
-
-        function setupFireButton() {
-            const fireButton = document.getElementById('fireButton');
-            
-            fireButton.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                mobileControls.shoot = true;
-            }, { passive: false });
-            
-            fireButton.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                mobileControls.shoot = false;
-            }, { passive: false });
         }
 
         // Game state
@@ -487,7 +411,7 @@
             leaderboard = [];
         }
 
-        // Player ship (inspired by the green alien character)
+        // Player ship
         const player = {
             x: 375,
             y: 550,
@@ -499,12 +423,12 @@
 
         // Scale player position for different screen sizes
         function scalePlayerPosition() {
-            player.x = gameState.canvasWidth * 0.46875; // 375/800 ratio
+            player.x = gameState.canvasWidth * 0.46875;
             // Adjust Y position to account for mobile controls
             if (isMobile()) {
                 player.y = gameState.canvasHeight * 0.75; // Higher up to avoid controls
             } else {
-                player.y = gameState.canvasHeight * 0.91667; // 550/600 ratio (original)
+                player.y = gameState.canvasHeight * 0.91667; // Original position
             }
         }
 
@@ -515,7 +439,7 @@
         let particles = [];
         let shields = [];
 
-        // MYSTCL Shield patterns (thicker pixel art letters)
+        // MYSTCL Shield patterns
         const shieldPatterns = {
             'M': [
                 [1,1,0,0,0,1,1],
@@ -589,9 +513,9 @@
             shields = [];
             const letters = ['M', 'Y', 'S', 'T', 'C', 'L'];
             const shieldColors = ['#ff00ff', '#ffff00', '#00ffff', '#ff6600', '#00ff00', '#ff0066'];
-            const startX = gameState.canvasWidth * 0.0875; // 70/800 ratio
-            const spacing = gameState.canvasWidth * 0.1375; // 110/800 ratio
-            const baseBlockSize = gameState.canvasWidth * 0.0075; // 6/800 ratio
+            const startX = gameState.canvasWidth * 0.0875;
+            const spacing = gameState.canvasWidth * 0.1375;
+            const baseBlockSize = gameState.canvasWidth * 0.0075;
             const blockSize = Math.max(2, Math.floor(baseBlockSize * gameState.shieldScale));
             
             letters.forEach((letter, letterIndex) => {
@@ -602,7 +526,7 @@
                 if (isMobile()) {
                     letterY = gameState.canvasHeight * 0.55; // Higher up to avoid controls
                 } else {
-                    letterY = gameState.canvasHeight * 0.71667; // 430/600 ratio (original)
+                    letterY = gameState.canvasHeight * 0.71667; // Original position
                 }
                 
                 pattern.forEach((row, rowIndex) => {
@@ -933,6 +857,125 @@
             document.getElementById('nameInput').style.display = 'none';
             updateLeaderboard(); // Make sure leaderboard is current
             document.getElementById('gameOver').style.display = 'block';
+        }
+
+        // Mobile joystick and button controls
+        let mobileControls = {
+            moveLeft: false,
+            moveRight: false,
+            shoot: false,
+            joystickActive: false,
+            joystickStartX: 0,
+            joystickCenterX: 0
+        };
+
+        function setupMobileControls() {
+            if (isMobile()) {
+                document.getElementById('mobileControls').style.display = 'block';
+                document.getElementById('desktopControls').style.display = 'none';
+                document.getElementById('mobileControlsUI').style.display = 'block';
+                
+                setupJoystick();
+                setupFireButton();
+                setupRestartButton();
+            } else {
+                // Ensure mobile controls are hidden on desktop
+                document.getElementById('mobileControlsUI').style.display = 'none';
+            }
+        }
+
+        function setupJoystick() {
+            const joystick = document.getElementById('joystick');
+            const stick = document.getElementById('joystickStick');
+            const base = joystick.querySelector('.joystick-base');
+            
+            // Get joystick center position
+            function getJoystickCenter() {
+                const rect = base.getBoundingClientRect();
+                return {
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2
+                };
+            }
+            
+            // Touch start
+            joystick.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                mobileControls.joystickActive = true;
+                const center = getJoystickCenter();
+                mobileControls.joystickCenterX = center.x;
+                handleJoystickMove(e);
+            }, { passive: false });
+            
+            // Touch move
+            joystick.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (mobileControls.joystickActive) {
+                    handleJoystickMove(e);
+                }
+            }, { passive: false });
+            
+            // Touch end
+            joystick.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                mobileControls.joystickActive = false;
+                mobileControls.moveLeft = false;
+                mobileControls.moveRight = false;
+                // Reset stick position
+                stick.style.transform = 'translate(-50%, -50%)';
+            }, { passive: false });
+        }
+
+        function handleJoystickMove(e) {
+            const touch = e.touches[0];
+            const stick = document.getElementById('joystickStick');
+            const base = document.querySelector('.joystick-base');
+            const baseRect = base.getBoundingClientRect();
+            
+            // Calculate relative position
+            const relativeX = touch.clientX - (baseRect.left + baseRect.width / 2);
+            const relativeY = touch.clientY - (baseRect.top + baseRect.height / 2);
+            
+            // Limit stick movement to base circle
+            const maxDistance = 25; // Half of base minus stick radius
+            const distance = Math.sqrt(relativeX * relativeX + relativeY * relativeY);
+            
+            let finalX = relativeX;
+            if (distance > maxDistance) {
+                finalX = (relativeX / distance) * maxDistance;
+            }
+            
+            // Move the stick
+            stick.style.transform = `translate(calc(-50% + ${finalX}px), -50%)`;
+            
+            // Set movement flags based on stick position
+            mobileControls.moveLeft = finalX < -10;
+            mobileControls.moveRight = finalX > 10;
+        }
+
+        function setupFireButton() {
+            const fireButton = document.getElementById('fireButton');
+            
+            fireButton.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                mobileControls.shoot = true;
+            }, { passive: false });
+            
+            fireButton.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                mobileControls.shoot = false;
+            }, { passive: false });
+        }
+
+        function setupRestartButton() {
+            const restartButton = document.getElementById('restartButton');
+            
+            if (restartButton) {
+                restartButton.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    resetGame();
+                }, { passive: false });
+            }
         }
 
         function updateGame() {
