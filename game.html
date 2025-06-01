@@ -21,10 +21,10 @@
 
         .game-container {
             position: relative;
-            width: min(800px, 95vw);
-            height: min(600px, 80vh);
-            max-width: 800px;
-            max-height: 600px;
+            width: 800px;
+            height: 600px;
+            max-width: 95vw;
+            max-height: 80vh;
             background: linear-gradient(180deg, #0a0a23 0%, #1a1a3a 50%, #2a2a4a 100%);
             border: 3px solid #00ffff;
             border-radius: 10px;
@@ -36,6 +36,8 @@
             .game-container {
                 width: 100vw;
                 height: 100vh;
+                max-width: 100vw;
+                max-height: 100vh;
                 border-radius: 0;
                 border: none;
             }
@@ -245,12 +247,16 @@
             const container = document.querySelector('.game-container');
             const containerRect = container.getBoundingClientRect();
             
+            // Set canvas size based on container
             canvas.width = containerRect.width;
             canvas.height = containerRect.height;
             
             // Update game boundaries
             gameState.canvasWidth = canvas.width;
             gameState.canvasHeight = canvas.height;
+            
+            // Scale factor for mobile vs desktop
+            gameState.scaleFactor = Math.min(canvas.width / 800, canvas.height / 600);
             
             // Adjust player position if out of bounds
             if (player.x > canvas.width - player.width) {
@@ -269,7 +275,8 @@
         let touchControls = {
             moveLeft: false,
             moveRight: false,
-            shoot: false
+            shoot: false,
+            lastTouch: 0
         };
 
         function setupMobileControls() {
@@ -280,23 +287,13 @@
                 // Touch start
                 canvas.addEventListener('touchstart', (e) => {
                     e.preventDefault();
-                    const touches = e.touches;
-                    
-                    for (let i = 0; i < touches.length; i++) {
-                        const touch = touches[i];
-                        const rect = canvas.getBoundingClientRect();
-                        const x = touch.clientX - rect.left;
-                        
-                        // Left half = move left, right half = move right
-                        if (x < canvas.width / 2) {
-                            touchControls.moveLeft = true;
-                        } else {
-                            touchControls.moveRight = true;
-                        }
-                        
-                        // Any touch = shoot
-                        touchControls.shoot = true;
-                    }
+                    handleTouch(e);
+                });
+                
+                // Touch move (for continuous movement)
+                canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    handleTouch(e);
                 });
                 
                 // Touch end
@@ -304,28 +301,39 @@
                     e.preventDefault();
                     touchControls.moveLeft = false;
                     touchControls.moveRight = false;
-                    touchControls.shoot = false;
                 });
                 
-                // Touch move (for continuous movement)
-                canvas.addEventListener('touchmove', (e) => {
+                // Touch cancel
+                canvas.addEventListener('touchcancel', (e) => {
                     e.preventDefault();
-                    const touches = e.touches;
                     touchControls.moveLeft = false;
                     touchControls.moveRight = false;
-                    
-                    for (let i = 0; i < touches.length; i++) {
-                        const touch = touches[i];
-                        const rect = canvas.getBoundingClientRect();
-                        const x = touch.clientX - rect.left;
-                        
-                        if (x < canvas.width / 2) {
-                            touchControls.moveLeft = true;
-                        } else {
-                            touchControls.moveRight = true;
-                        }
-                    }
                 });
+            }
+        }
+
+        function handleTouch(e) {
+            const touches = e.touches;
+            touchControls.moveLeft = false;
+            touchControls.moveRight = false;
+            
+            for (let i = 0; i < touches.length; i++) {
+                const touch = touches[i];
+                const rect = canvas.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                
+                // Left half = move left, right half = move right
+                if (x < canvas.width / 2) {
+                    touchControls.moveLeft = true;
+                } else {
+                    touchControls.moveRight = true;
+                }
+                
+                // Shooting with cooldown
+                if (Date.now() - touchControls.lastTouch > 300) {
+                    touchControls.shoot = true;
+                    touchControls.lastTouch = Date.now();
+                }
             }
         }
 
@@ -340,7 +348,8 @@
             invaderSpeed: 0.5,
             shieldScale: 1.0,
             canvasWidth: 800,
-            canvasHeight: 600
+            canvasHeight: 600,
+            scaleFactor: 1
         };
 
         // Leaderboard storage
@@ -805,7 +814,7 @@
                 // Shoot from the top of the head
                 bullets.push(createBullet(player.x + player.width/2, player.y + player.height/2 - 20, -1));
                 gameState.lastShot = Date.now();
-                touchControls.shoot = false; // Prevent rapid fire on touch
+                touchControls.shoot = false; // Reset touch shoot
             }
 
             // Update bullets
