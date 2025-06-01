@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYSTCL INVADERS</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0a0a23 0%, #1a1a3a 25%, #2a2a4a 50%, #1a1a3a 75%, #0a0a23 100%);
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            z-index: 10;
+            position: relative;
+        }
+
+        .welcome-card {
+            background: linear-gradient(145deg, 
+                rgba(0, 20, 40, 0.95) 0%, 
+                rgba(20, 40, 60, 0.9) 25%, 
+                rgba(10, 30, 50, 0.95) 50%, 
+                rgba(20, 40, 60, 0.9) 75%, 
+                rgba(0, 20, 40, 0.95) 100%);
+            border: 3px solid #00ffff;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 
+                0 0 30px rgba(0, 255, 255, 0.3),
+                0 0 60px rgba(255, 0, 255, 0.2),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: cardGlow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes cardGlow {
+            0% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), 0 0 60px rgba(255, 0, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.1); }
+            100% { box-shadow: 0 0 40px rgba(0, 255, 255, 0.5), 0 0 80px rgba(255, 0, 255, 0.3), inset 0 0 30px rgba(0, 255, 255, 0.2); }
+        }
+
+        .title {
+            font-size: 48px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+            margin-bottom: 10px;
+            letter-spacing: 4px;
+            animation: titleShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes titleShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: #00ffff;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        .description {
+            font-size: 16px;
+            color: #ffffff;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .play-button {
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff);
+            background-size: 200% 200%;
+            border: 3px solid #ffffff;
+            border-radius: 15px;
+            padding: 15px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #000000;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            box-shadow: 
+                0 0 20px rgba(255, 0, 255, 0.6),
+                0 0 40px rgba(0, 255, 255, 0.4);
+            transition: all 0.3s ease;
+            animation: buttonPulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes buttonPulse {
+            0% { 
+                background-position: 0% 50%;
+                transform: scale(1);
+            }
+            100% { 
+                background-position: 100% 50%;
+                transform: scale(1.05);
+            }
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                0 0 30px rgba(255, 0, 255, 0.8),
+                0 0 60px rgba(0, 255, 255, 0.6);
+            background: linear-gradient(45deg, #ff44ff, #44ffff, #ff44ff);
+        }
+
+        .play-button:active {
+            transform: scale(0.95);
+        }
+
+        .info-box {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #ffff00;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            color: #ffff00;
+            text-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
+        }
+
+        .info-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+
+        .info-item {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .floating-mystcl {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 60px;
+            color: #ff00ff;
+            text-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+            animation: float 6s ease-in-out infinite;
+            z-index: 5;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(2deg); }
+            66% { transform: translateY(5px) rotate(-1deg); }
+        }
+
+        .cosmic-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+        .particle {
+            position: absolute;
+            background: #00ffff;
+            border-radius: 50%;
+            animation: particleFloat 8s linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) translateX(0px);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="cosmic-particles" id="particles"></div>
+    
+    <div class="floating-mystcl">👾</div>
+    
+    <div class="container">
+        <div class="welcome-card">
+            <h1 class="title">MYSTCL INVADERS</h1>
+            <div class="subtitle">MYSTCL ARCADE</div>
+            
+            <p class="description">
+                Navigate the cosmic battlefield as a mystical being! Defend against waves of alien invaders 
+                while hiding behind destructible MYSTCL shields. Use your ethereal powers to shoot energy blasts 
+                and survive the interdimensional invasion!
+            </p>
+            
+            <a href="javascript:void(0)" class="play-button" onclick="startGame()">
+                ⚡ PLAY NOW ⚡
+            </a>
+            
+            <div class="info-box">
+                <div class="info-title">🎮 Game Controls:</div>
+                <div class="info-item"><strong>ARROWS:</strong> Move your mystical being left and right</div>
+                <div class="info-item"><strong>SPACEBAR:</strong> Fire energy blasts at invaders</div>
+                <div class="info-item"><strong>GOAL:</strong> Survive waves and protect the MYSTCL shields!</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create animated stars background
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = star.style.height = Math.random() * 4 + 1 + 'px';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.width = particle.style.height = Math.random() * 3 + 1 + 'px';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                
+                // Random colors for particles
+                const colors = ['#00ffff', '#ff00ff', '#ffff00', '#00ff00', '#ff0066'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        function startGame() {
+            // Add click effect
+            document.querySelector('.play-button').style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                // Here you would redirect to your game or show the game
+                alert('Game starting! 🚀\n\nThis would redirect to your MYSTCL INVADERS game.');
+                // window.location.href = 'mystcl-invaders-game.html';
+            }, 150);
+        }
+
+        // Initialize effects
+        createStars();
+        createParticles();
+
+        // Add some dynamic effects
+        document.addEventListener('mousemove', (e) => {
+            const card = document.querySelector('.welcome-card');
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 20;
+            const rotateY = (centerX - x) / 20;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            const card = document.querySelector('.welcome-card');
+            card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+        });
+    </script>
+</body>
+</html>
