@@ -460,9 +460,84 @@
             letter-spacing: 3px;
         }
 
-        @media (max-width: 768px) {
-            .game-title {
-                display: none;
+        /* Mobile Controls - Rebuilt */
+        .mobile-controls {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 120px;
+            display: none;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        .joystick-container {
+            position: absolute;
+            bottom: 20px;
+            left: 25%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 80px;
+            pointer-events: all;
+        }
+
+        .joystick-rail {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 2px;
+            background: rgba(0, 255, 255, 0.3);
+        }
+
+        .joystick-stick {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #00ffff;
+            box-shadow: 
+                0 0 15px rgba(0, 255, 255, 0.8),
+                inset 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .fire-button {
+            position: absolute;
+            bottom: 20px;
+            right: 25%;
+            transform: translateX(50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 0, 255, 0.3);
+            border: 3px solid #ff00ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #ff00ff;
+            font-weight: bold;
+            box-shadow: 
+                0 0 20px rgba(255, 0, 255, 0.6),
+                inset 0 0 15px rgba(255, 0, 255, 0.2);
+            pointer-events: all;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .fire-button:active {
+            background: rgba(255, 0, 255, 0.6);
+            transform: translateX(50%) scale(0.95);
+        }
+
+        /* Show mobile controls on mobile devices */
+        @media (max-width: 768px) and (pointer: coarse) {
+            .mobile-controls {
+                display: block;
             }
         }
 
@@ -608,6 +683,16 @@
             </div>
             <div class="controls">
                 <span id="desktopControls">Arrow Keys: Move | Space: Shoot | R: Restart</span>
+                <span id="mobileControls" style="display: none;">Touch joystick to move | Tap FIRE to shoot</span>
+            </div>
+            
+            <!-- Mobile Controls -->
+            <div class="mobile-controls" id="mobileControlsUI">
+                <div class="joystick-container" id="joystick">
+                    <div class="joystick-rail"></div>
+                    <div class="joystick-stick" id="joystickStick"></div>
+                </div>
+                <div class="fire-button" id="fireButton">FIRE</div>
             </div>
         </div>
     </div>
@@ -1104,21 +1189,105 @@
                 document.getElementById('gameOver').style.display = 'block';
             }
 
-            // Mobile controls completely removed - will rebuild later
+            // Mobile controls - rebuilt
+            let mobileControls = {
+                moveLeft: false,
+                moveRight: false,
+                shoot: false,
+                isDragging: false
+            };
+
+            function setupMobileControls() {
+                if (isMobile()) {
+                    document.getElementById('mobileControls').style.display = 'block';
+                    document.getElementById('desktopControls').style.display = 'none';
+                    document.getElementById('mobileControlsUI').style.display = 'block';
+                    
+                    setupJoystick();
+                    setupFireButton();
+                } else {
+                    document.getElementById('mobileControlsUI').style.display = 'none';
+                }
+            }
+
+            function setupJoystick() {
+                const container = document.getElementById('joystick');
+                const stick = document.getElementById('joystickStick');
+                
+                container.addEventListener('touchstart', handleJoystickStart, { passive: false });
+                container.addEventListener('touchmove', handleJoystickMove, { passive: false });
+                container.addEventListener('touchend', handleJoystickEnd, { passive: false });
+            }
+
+            function handleJoystickStart(e) {
+                e.preventDefault();
+                mobileControls.isDragging = true;
+                handleJoystickMove(e);
+            }
+
+            function handleJoystickMove(e) {
+                if (!mobileControls.isDragging) return;
+                e.preventDefault();
+                
+                const touch = e.touches[0];
+                const container = document.getElementById('joystick');
+                const stick = document.getElementById('joystickStick');
+                const containerRect = container.getBoundingClientRect();
+                
+                // Calculate position relative to container center
+                const centerX = containerRect.left + containerRect.width / 2;
+                const relativeX = touch.clientX - centerX;
+                
+                // Constrain to rail bounds (75px each side from center)
+                const maxDistance = 45;
+                const constrainedX = Math.max(-maxDistance, Math.min(maxDistance, relativeX));
+                
+                // Move the stick
+                stick.style.transform = `translate(calc(-50% + ${constrainedX}px), -50%)`;
+                
+                // Set movement flags
+                mobileControls.moveLeft = constrainedX < -15;
+                mobileControls.moveRight = constrainedX > 15;
+            }
+
+            function handleJoystickEnd(e) {
+                e.preventDefault();
+                mobileControls.isDragging = false;
+                mobileControls.moveLeft = false;
+                mobileControls.moveRight = false;
+                
+                // Reset stick to center
+                const stick = document.getElementById('joystickStick');
+                stick.style.transform = 'translate(-50%, -50%)';
+            }
+
+            function setupFireButton() {
+                const fireButton = document.getElementById('fireButton');
+                
+                fireButton.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    mobileControls.shoot = true;
+                }, { passive: false });
+                
+                fireButton.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    mobileControls.shoot = false;
+                }, { passive: false });
+            }
 
             function updateGame() {
                 if (gameState.gameOver) return;
 
-                // Move player - keyboard only for now
-                if (gameState.keys['ArrowLeft'] && player.x > 0) {
+                // Move player - keyboard and mobile
+                if ((gameState.keys['ArrowLeft'] || mobileControls.moveLeft) && player.x > 0) {
                     player.x -= player.speed;
                 }
-                if (gameState.keys['ArrowRight'] && player.x < gameState.canvasWidth - player.width) {
+                if ((gameState.keys['ArrowRight'] || mobileControls.moveRight) && player.x < gameState.canvasWidth - player.width) {
                     player.x += player.speed;
                 }
 
-                // Player shooting - keyboard only for now
-                if (gameState.keys[' '] && Date.now() - gameState.lastShot > 200) {
+                // Player shooting - keyboard and mobile
+                if ((gameState.keys[' '] || mobileControls.shoot) && Date.now() - gameState.lastShot > 200) {
                     bullets.push(createBullet(player.x + player.width/2, player.y + player.height/2 - 20, -1));
                     gameState.lastShot = Date.now();
                 }
