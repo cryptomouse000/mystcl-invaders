@@ -414,43 +414,43 @@
             position: absolute;
             bottom: 0;
             width: 100%;
-            height: 160px;
+            height: 100px;
             display: none;
             z-index: 50;
             pointer-events: none;
-            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%);
+            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.2) 100%);
         }
 
         .joystick-container {
             position: absolute;
-            bottom: 15px;
-            left: 15px;
-            width: 120px;
-            height: 120px;
+            bottom: 20px;
+            left: 20px;
+            width: 200px;
+            height: 60px;
             pointer-events: all;
         }
 
-        .joystick-base {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
+        .joystick-track {
+            width: 200px;
+            height: 60px;
+            border-radius: 30px;
             background: rgba(0, 255, 255, 0.2);
-            border: 4px solid #00ffff;
+            border: 3px solid #00ffff;
             position: relative;
             box-shadow: 
-                0 0 20px rgba(0, 255, 255, 0.4),
-                inset 0 0 20px rgba(0, 255, 255, 0.1);
+                0 0 15px rgba(0, 255, 255, 0.4),
+                inset 0 0 15px rgba(0, 255, 255, 0.1);
         }
 
         .joystick-stick {
-            width: 45px;
-            height: 45px;
+            width: 54px;
+            height: 54px;
             border-radius: 50%;
             background: #00ffff;
             position: absolute;
             top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            left: 30px;
+            transform: translateY(-50%);
             box-shadow: 
                 0 0 15px rgba(0, 255, 255, 0.8),
                 inset 0 0 10px rgba(255, 255, 255, 0.3);
@@ -459,22 +459,22 @@
 
         .fire-button {
             position: absolute;
-            bottom: 15px;
-            right: 15px;
-            width: 120px;
-            height: 120px;
-            border-radius: 15px;
+            bottom: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
             background: rgba(255, 0, 255, 0.2);
-            border: 4px solid #ff00ff;
+            border: 3px solid #ff00ff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 14px;
             color: #ff00ff;
             font-weight: bold;
             box-shadow: 
-                0 0 20px rgba(255, 0, 255, 0.4),
-                inset 0 0 20px rgba(255, 0, 255, 0.1);
+                0 0 15px rgba(255, 0, 255, 0.4),
+                inset 0 0 15px rgba(255, 0, 255, 0.1);
             pointer-events: all;
             user-select: none;
             touch-action: manipulation;
@@ -554,17 +554,17 @@
             </div>
             <div class="controls">
                 <span id="desktopControls">Arrow Keys: Move | Space: Shoot | R: Restart</span>
-                <span id="mobileControls" style="display: none;">Use joystick to move | Tap SHOOT to fire</span>
+                <span id="mobileControls" style="display: none;">Use slider to move | Tap FIRE to shoot</span>
             </div>
             
             <!-- Mobile Controls -->
             <div class="mobile-controls" id="mobileControlsUI">
                 <div class="joystick-container" id="joystick">
-                    <div class="joystick-base">
+                    <div class="joystick-track">
                         <div class="joystick-stick" id="joystickStick"></div>
                     </div>
                 </div>
-                <div class="fire-button" id="fireButton">SHOOT</div>
+                <div class="fire-button" id="fireButton">FIRE</div>
             </div>
         </div>
     </div>
@@ -1102,6 +1102,7 @@
             function setupJoystick() {
                 const joystick = document.getElementById('joystick');
                 const stick = document.getElementById('joystickStick');
+                const track = joystick.querySelector('.joystick-track');
                 
                 joystick.addEventListener('touchstart', (e) => {
                     e.preventDefault();
@@ -1121,28 +1122,30 @@
                     mobileControls.joystickActive = false;
                     mobileControls.moveLeft = false;
                     mobileControls.moveRight = false;
-                    stick.style.transform = 'translate(-50%, -50%)';
+                    stick.style.left = '30px'; // Reset to center-left position
                 }, { passive: false });
             }
 
             function handleJoystickMove(e) {
                 const touch = e.touches[0];
                 const stick = document.getElementById('joystickStick');
-                const base = document.querySelector('.joystick-base');
-                const baseRect = base.getBoundingClientRect();
+                const track = document.querySelector('.joystick-track');
+                const trackRect = track.getBoundingClientRect();
                 
-                const relativeX = touch.clientX - (baseRect.left + baseRect.width / 2);
-                const maxDistance = 35; // Increased for larger joystick
-                const distance = Math.sqrt(relativeX * relativeX);
+                // Calculate relative X position within the track
+                const relativeX = touch.clientX - trackRect.left;
                 
-                let finalX = relativeX;
-                if (distance > maxDistance) {
-                    finalX = (relativeX / distance) * maxDistance;
-                }
+                // Constrain stick movement within track bounds
+                const minX = 0;
+                const maxX = trackRect.width - 54; // 54px is stick width
+                const constrainedX = Math.max(minX, Math.min(maxX, relativeX - 27)); // Center stick on touch
                 
-                stick.style.transform = `translate(calc(-50% + ${finalX}px), -50%)`;
-                mobileControls.moveLeft = finalX < -15;
-                mobileControls.moveRight = finalX > 15;
+                stick.style.left = constrainedX + 'px';
+                
+                // Set movement flags based on stick position
+                const centerX = trackRect.width / 2 - 27; // Account for stick width
+                mobileControls.moveLeft = constrainedX < centerX - 20;
+                mobileControls.moveRight = constrainedX > centerX + 20;
             }
 
             function setupFireButton() {
