@@ -426,15 +426,15 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 200px;
-            height: 80px;
+            width: 230px;
+            height: 92px;
         }
 
         .joystick-track {
             position: absolute;
             top: 50%;
             left: 0;
-            width: 200px;
+            width: 230px;
             height: 2px;
             background: rgba(0, 255, 255, 0.3);
             transform: translateY(-50%);
@@ -444,8 +444,8 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 50px;
-            height: 50px;
+            width: 58px;
+            height: 58px;
             background: #00ffff;
             border-radius: 50%;
             transform: translate(-50%, -50%);
@@ -458,8 +458,8 @@
             position: absolute;
             bottom: 20px;
             right: 30px;
-            width: 70px;
-            height: 70px;
+            width: 81px;
+            height: 81px;
             background: rgba(255, 0, 255, 0.3);
             border: 3px solid #ff00ff;
             border-radius: 50%;
@@ -1086,94 +1086,101 @@
                     document.getElementById('desktopControls').style.display = 'none';
                     document.getElementById('mobileControlsUI').style.display = 'block';
                     
-                    setupJoystick();
-                    setupFireButton();
+                    // Setup joystick with direct DOM events
+                    const stick = document.getElementById('joystickStick');
+                    const container = document.getElementById('joystick');
+                    let isDragging = false;
+                    
+                    // Use multiple event types to ensure responsiveness
+                    function startDrag(e) {
+                        isDragging = true;
+                        mobileControls.joystickActive = true;
+                        if (e.preventDefault) e.preventDefault();
+                        handleMove(e);
+                    }
+                    
+                    function handleMove(e) {
+                        if (!isDragging) return;
+                        if (e.preventDefault) e.preventDefault();
+                        
+                        let clientX;
+                        if (e.touches && e.touches[0]) {
+                            clientX = e.touches[0].clientX;
+                        } else if (e.clientX) {
+                            clientX = e.clientX;
+                        } else {
+                            return;
+                        }
+                        
+                        const containerRect = container.getBoundingClientRect();
+                        const stickRadius = 29; // Half of 58px
+                        
+                        // Calculate position
+                        let x = clientX - containerRect.left - stickRadius;
+                        x = Math.max(0, Math.min(containerRect.width - 58, x));
+                        
+                        // Update position
+                        stick.style.left = x + 'px';
+                        stick.style.transform = 'translateY(-50%)';
+                        
+                        // Set movement flags
+                        const center = containerRect.width / 2 - stickRadius;
+                        const threshold = 35;
+                        
+                        mobileControls.moveLeft = x < center - threshold;
+                        mobileControls.moveRight = x > center + threshold;
+                    }
+                    
+                    function endDrag(e) {
+                        if (e.preventDefault) e.preventDefault();
+                        isDragging = false;
+                        mobileControls.joystickActive = false;
+                        mobileControls.moveLeft = false;
+                        mobileControls.moveRight = false;
+                        
+                        // Reset to center
+                        stick.style.left = '50%';
+                        stick.style.transform = 'translate(-50%, -50%)';
+                    }
+                    
+                    // Add all possible event listeners
+                    stick.addEventListener('touchstart', startDrag, {passive: false});
+                    stick.addEventListener('touchmove', handleMove, {passive: false});
+                    stick.addEventListener('touchend', endDrag, {passive: false});
+                    stick.addEventListener('touchcancel', endDrag, {passive: false});
+                    
+                    // Mouse events as backup
+                    stick.addEventListener('mousedown', startDrag);
+                    document.addEventListener('mousemove', handleMove);
+                    document.addEventListener('mouseup', endDrag);
+                    
+                    // Setup fire button
+                    const fireButton = document.getElementById('fireButton');
+                    
+                    function startFire(e) {
+                        if (e.preventDefault) e.preventDefault();
+                        mobileControls.shoot = true;
+                    }
+                    
+                    function endFire(e) {
+                        if (e.preventDefault) e.preventDefault();
+                        mobileControls.shoot = false;
+                    }
+                    
+                    fireButton.addEventListener('touchstart', startFire, {passive: false});
+                    fireButton.addEventListener('touchend', endFire, {passive: false});
+                    fireButton.addEventListener('touchcancel', endFire, {passive: false});
+                    
+                    // Mouse events as backup
+                    fireButton.addEventListener('mousedown', startFire);
+                    fireButton.addEventListener('mouseup', endFire);
+                    
                 } else {
                     document.getElementById('mobileControlsUI').style.display = 'none';
                 }
             }
 
-            function setupJoystick() {
-                const stick = document.getElementById('joystickStick');
-                const container = document.getElementById('joystick');
-                let isDragging = false;
-                
-                // Touch events for mobile
-                stick.ontouchstart = function(e) {
-                    e.preventDefault();
-                    isDragging = true;
-                    mobileControls.joystickActive = true;
-                };
-                
-                stick.ontouchmove = function(e) {
-                    if (!isDragging) return;
-                    e.preventDefault();
-                    
-                    const touch = e.touches[0];
-                    const containerRect = container.getBoundingClientRect();
-                    const stickRadius = 25; // Half of stick width (50px)
-                    
-                    // Calculate position relative to container
-                    let x = touch.clientX - containerRect.left - stickRadius;
-                    
-                    // Constrain to container bounds
-                    x = Math.max(0, Math.min(containerRect.width - 50, x));
-                    
-                    // Update stick position
-                    stick.style.left = x + 'px';
-                    stick.style.transform = 'translateY(-50%)';
-                    
-                    // Calculate movement based on position
-                    const center = containerRect.width / 2 - stickRadius;
-                    const threshold = 30;
-                    
-                    mobileControls.moveLeft = x < center - threshold;
-                    mobileControls.moveRight = x > center + threshold;
-                };
-                
-                stick.ontouchend = function(e) {
-                    e.preventDefault();
-                    isDragging = false;
-                    mobileControls.joystickActive = false;
-                    mobileControls.moveLeft = false;
-                    mobileControls.moveRight = false;
-                    
-                    // Reset to center
-                    stick.style.left = '50%';
-                    stick.style.transform = 'translate(-50%, -50%)';
-                };
-                
-                // Prevent context menu on long press
-                stick.oncontextmenu = function(e) {
-                    e.preventDefault();
-                    return false;
-                };
-            }
-
-            function setupFireButton() {
-                const fireButton = document.getElementById('fireButton');
-                
-                fireButton.ontouchstart = function(e) {
-                    e.preventDefault();
-                    mobileControls.shoot = true;
-                };
-                
-                fireButton.ontouchend = function(e) {
-                    e.preventDefault();
-                    mobileControls.shoot = false;
-                };
-                
-                fireButton.ontouchcancel = function(e) {
-                    e.preventDefault();
-                    mobileControls.shoot = false;
-                };
-                
-                // Prevent context menu
-                fireButton.oncontextmenu = function(e) {
-                    e.preventDefault();
-                    return false;
-                };
-            }
+            // Remove the old separate functions since we're handling everything in setupMobileControls now
 
             function updateGame() {
                 if (gameState.gameOver) return;
