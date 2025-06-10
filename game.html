@@ -527,16 +527,6 @@
             </div>
             <div class="controls">
                 <span id="desktopControls">Arrow Keys: Move | Space: Shoot | R: Restart</span>
-                <span id="mobileControls" style="display: none;">Use joystick to move | Tap FIRE to shoot</span>
-            </div>
-            
-            <!-- Mobile Controls -->
-            <div class="mobile-controls" id="mobileControlsUI">
-                <div class="joystick-container" id="joystick">
-                    <div class="joystick-base"></div>
-                    <div class="joystick-stick" id="joystickStick"></div>
-                </div>
-                <div class="fire-button" id="fireButton">FIRE</div>
             </div>
         </div>
     </div>
@@ -670,12 +660,7 @@
             // Scale player position for different screen sizes
             function scalePlayerPosition() {
                 player.x = gameState.canvasWidth * 0.46875;
-                // Adjust Y position to account for mobile controls
-                if (isMobile()) {
-                    player.y = gameState.canvasHeight * 0.65; // Higher up to avoid controls
-                } else {
-                    player.y = gameState.canvasHeight * 0.91667; // Original position
-                }
+                player.y = gameState.canvasHeight * 0.91667; // Original position
             }
 
             // Arrays for game objects
@@ -767,13 +752,7 @@
                 letters.forEach((letter, letterIndex) => {
                     const pattern = shieldPatterns[letter];
                     const letterX = startX + letterIndex * spacing;
-                    // Adjust shield Y position to account for mobile controls
-                    let letterY;
-                    if (isMobile()) {
-                        letterY = gameState.canvasHeight * 0.45; // Higher up to avoid controls
-                    } else {
-                        letterY = gameState.canvasHeight * 0.71667; // Original position
-                    }
+                    const letterY = gameState.canvasHeight * 0.71667; // Original position
                     
                     pattern.forEach((row, rowIndex) => {
                         row.forEach((pixel, colIndex) => {
@@ -1044,107 +1023,21 @@
                 document.getElementById('gameOver').style.display = 'block';
             }
 
-            window.skipScore = function() {
-                document.getElementById('nameInput').style.display = 'none';
-                updateLeaderboard();
-                document.getElementById('gameOver').style.display = 'block';
-            }
-
-            // Mobile controls
-            let mobileControls = {
-                moveLeft: false,
-                moveRight: false,
-                shoot: false,
-                joystickActive: false
-            };
-
-            function setupMobileControls() {
-                if (isMobile()) {
-                    document.getElementById('mobileControls').style.display = 'block';
-                    document.getElementById('desktopControls').style.display = 'none';
-                    document.getElementById('mobileControlsUI').style.display = 'block';
-                    
-                    setupJoystick();
-                    setupFireButton();
-                } else {
-                    document.getElementById('mobileControlsUI').style.display = 'none';
-                }
-            }
-
-            function setupJoystick() {
-                const joystick = document.getElementById('joystick');
-                const stick = document.getElementById('joystickStick');
-                
-                joystick.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    mobileControls.joystickActive = true;
-                    handleJoystickMove(e);
-                }, { passive: false });
-                
-                joystick.addEventListener('touchmove', (e) => {
-                    e.preventDefault();
-                    if (mobileControls.joystickActive) {
-                        handleJoystickMove(e);
-                    }
-                }, { passive: false });
-                
-                joystick.addEventListener('touchend', (e) => {
-                    e.preventDefault();
-                    mobileControls.joystickActive = false;
-                    mobileControls.moveLeft = false;
-                    mobileControls.moveRight = false;
-                    stick.style.transform = 'translate(-50%, -50%)';
-                }, { passive: false });
-            }
-
-            function handleJoystickMove(e) {
-                const touch = e.touches[0];
-                const stick = document.getElementById('joystickStick');
-                const base = document.querySelector('.joystick-base');
-                const container = document.getElementById('joystick');
-                const containerRect = container.getBoundingClientRect();
-                
-                const relativeX = touch.clientX - (containerRect.left + containerRect.width / 2);
-                const maxDistance = 38; // Increased for bigger joystick
-                const distance = Math.sqrt(relativeX * relativeX);
-                
-                let finalX = relativeX;
-                if (distance > maxDistance) {
-                    finalX = (relativeX / distance) * maxDistance;
-                }
-                
-                stick.style.transform = `translate(calc(-50% + ${finalX}px), -50%)`;
-                mobileControls.moveLeft = finalX < -15;
-                mobileControls.moveRight = finalX > 15;
-            }
-
-            function setupFireButton() {
-                const fireButton = document.getElementById('fireButton');
-                
-                fireButton.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    mobileControls.shoot = true;
-                }, { passive: false });
-                
-                fireButton.addEventListener('touchend', (e) => {
-                    e.preventDefault();
-                    mobileControls.shoot = false;
-                }, { passive: false });
-            }
+            // Mobile controls completely removed - will rebuild later
 
             function updateGame() {
                 if (gameState.gameOver) return;
 
-                // Move player
-                if ((gameState.keys['ArrowLeft'] || mobileControls.moveLeft) && player.x > 0) {
+                // Move player - keyboard only for now
+                if (gameState.keys['ArrowLeft'] && player.x > 0) {
                     player.x -= player.speed;
                 }
-                if ((gameState.keys['ArrowRight'] || mobileControls.moveRight) && player.x < gameState.canvasWidth - player.width) {
+                if (gameState.keys['ArrowRight'] && player.x < gameState.canvasWidth - player.width) {
                     player.x += player.speed;
                 }
 
-                // Player shooting
-                if ((gameState.keys[' '] || mobileControls.shoot) && Date.now() - gameState.lastShot > 200) {
+                // Player shooting - keyboard only for now
+                if (gameState.keys[' '] && Date.now() - gameState.lastShot > 200) {
                     bullets.push(createBullet(player.x + player.width/2, player.y + player.height/2 - 20, -1));
                     gameState.lastShot = Date.now();
                 }
@@ -1303,7 +1196,6 @@
             // Initialize
             window.addEventListener('resize', resizeCanvas);
             resizeCanvas();
-            setupMobileControls();
             scalePlayerPosition();
             createInvaders();
             createShields();
