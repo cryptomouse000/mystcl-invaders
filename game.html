@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MYSTCL INVADERS</title>
     <style>
         body {
@@ -17,9 +17,12 @@
             background-size: 400% 400%;
             animation: cosmicShift 8s ease infinite;
             min-height: 100vh;
+            min-height: 100dvh;
             font-family: 'Courier New', monospace;
             overflow: hidden;
             position: relative;
+            width: 100%;
+            height: 100%;
         }
 
         @keyframes cosmicShift {
@@ -221,6 +224,7 @@
             position: relative;
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             background: linear-gradient(180deg, #0a0a23 0%, #1a1a3a 50%, #2a2a4a 100%);
             overflow: hidden;
         }
@@ -234,6 +238,26 @@
                 border: 3px solid #00ffff;
                 border-radius: 10px;
                 box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                border: none;
+                border-radius: 0;
+            }
+            
+            html, body {
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
+                height: 100%;
             }
         }
 
@@ -390,16 +414,17 @@
             position: absolute;
             bottom: 0;
             width: 100%;
-            height: 140px;
+            height: 160px;
             display: none;
             z-index: 50;
             pointer-events: none;
+            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%);
         }
 
         .joystick-container {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            bottom: 15px;
+            left: 15px;
             width: 120px;
             height: 120px;
             pointer-events: all;
@@ -434,17 +459,17 @@
 
         .fire-button {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 110px;
-            height: 110px;
+            bottom: 15px;
+            right: 15px;
+            width: 120px;
+            height: 120px;
             border-radius: 15px;
             background: rgba(255, 0, 255, 0.2);
             border: 4px solid #ff00ff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             color: #ff00ff;
             font-weight: bold;
             box-shadow: 
@@ -675,7 +700,7 @@
                 player.x = gameState.canvasWidth * 0.46875;
                 // Adjust Y position to account for mobile controls
                 if (isMobile()) {
-                    player.y = gameState.canvasHeight * 0.65; // Higher up to avoid controls
+                    player.y = gameState.canvasHeight * 0.75; // Higher up to avoid controls
                 } else {
                     player.y = gameState.canvasHeight * 0.91667; // Original position
                 }
@@ -773,7 +798,7 @@
                     // Adjust shield Y position to account for mobile controls
                     let letterY;
                     if (isMobile()) {
-                        letterY = gameState.canvasHeight * 0.45; // Higher up to avoid controls
+                        letterY = gameState.canvasHeight * 0.55; // Higher up to avoid controls
                     } else {
                         letterY = gameState.canvasHeight * 0.71667; // Original position
                     }
