@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MYSTCL INVADERS</title>
     <style>
         body {
@@ -20,6 +20,20 @@
             font-family: 'Courier New', monospace;
             overflow: hidden;
             position: relative;
+        }
+
+        /* Mobile Screen Optimization */
+        @media (max-width: 768px) {
+            body {
+                position: fixed;
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                min-height: 100vh;
+                min-height: 100dvh;
+                overflow: hidden;
+                overscroll-behavior: none;
+            }
         }
 
         @keyframes cosmicShift {
@@ -225,6 +239,7 @@
             overflow: hidden;
         }
 
+        /* Desktop Media Query */
         @media (min-width: 769px) {
             .game-container {
                 width: 800px;
@@ -237,9 +252,68 @@
             }
         }
 
+        /* Mobile Media Queries for Different Screen Sizes */
+        @media (max-width: 768px) {
+            .game-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                max-width: 100vw;
+                max-height: 100vh;
+                max-height: 100dvh;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+            }
+        }
+
+        /* Specific Mobile Device Optimizations */
+        @media (max-width: 480px) {
+            .game-container {
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+            }
+        }
+
+        /* Landscape Mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .game-container {
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+            }
+        }
+
+        /* Portrait Mobile */
+        @media (max-width: 768px) and (orientation: portrait) {
+            .game-container {
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+            }
+        }
+
         canvas {
             display: block;
             background: transparent;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Mobile Canvas Optimization */
+        @media (max-width: 768px) {
+            canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100vw !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+            }
         }
 
         .ui {
@@ -310,6 +384,13 @@
             font-size: 12px;
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.8);
             z-index: 10;
+        }
+
+        /* Hide controls on mobile for now */
+        @media (max-width: 768px) {
+            .controls {
+                display: none;
+            }
         }
 
         .leaderboard {
